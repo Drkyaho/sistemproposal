@@ -9,36 +9,33 @@ class MahasiswaController extends Controller
 {
     public function index()
     {
-        $mahasiswa = \App\Models\Mahasiswa::all();
+        $mahasiswa = Mahasiswa::all();
         return view('mahasiswa.index', compact('mahasiswa'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama' => 'required',
-            'npm' => 'required',
-            'judul' => 'required',
-            'file' => 'required|file',
-            'dospem_1' => 'required',  // Validasi untuk dospem_1
-            'dospem_2' => 'required',  // Validasi untuk dospem_2
-            'catatan_dospem' => 'nullable',  // Validasi untuk catatan_dospem
+            'nama' => 'required|string|max:255',
+            'npm' => 'required|string|max:20|unique:mahasiswa,npm',
+            'judul' => 'required|string|max:255',
+            'file' => 'required|file|mimes:pdf,doc,docx|max:10240', // Max 10MB
         ]);
 
-        // Menyimpan file yang di-upload
-        $filePath = $request->file('file')->store('proposals');
+        // Menyimpan file
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filePath = $file->store('uploads', 'public'); // Menyimpan file di folder public/uploads
+        }
 
-        // Menyimpan data mahasiswa termasuk dospem_1, dospem_2, dan catatan_dospem
-        \App\Models\Mahasiswa::create([
-            'nama' => $validated['nama'],
-            'npm' => $validated['npm'],
-            'judul' => $validated['judul'],
-            'file_path' => $filePath,
-            'dospem_1' => $validated['dospem_1'],  // Menyimpan dospem_1
-            'dospem_2' => $validated['dospem_2'],  // Menyimpan dospem_2
-            'catatan_dospem' => $validated['catatan_dospem'] ?? null,  // Menyimpan catatan_dospem, jika ada
+        // Membuat entri baru di database
+        Mahasiswa::create([
+            'nama' => $request->input('nama'),
+            'npm' => $request->input('npm'),
+            'judul' => $request->input('judul'),
+            'file_path' => $filePath ?? null, // Simpan path file jika ada
         ]);
 
-        return redirect('/mahasiswa');
+        return redirect()->back()->with('success', 'Pengajuan proposal berhasil!');
     }
 }

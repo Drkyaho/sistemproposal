@@ -43,8 +43,8 @@
                         <td>{{ $mhs->nama }}</td>
                         <td>{{ $mhs->npm }}</td>
                         <td>{{ $mhs->judul }}</td>
-                        <td>{{ $mhs->dosen1 }}</td>
-                        <td>{{ $mhs->dosen2 }}</td>
+                        <td>{{ $mhs->dospem_1 }}</td>
+                        <td>{{ $mhs->dospem_2 }}</td>
                         <td class="text-center">
                             <span class="badge bg-{{ $mhs->status == 'diterima' ? 'success' : 'danger' }}">
                                 {{ ucfirst($mhs->status) }}

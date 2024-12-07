@@ -42,29 +42,34 @@
                 </thead>
                 <tbody>
                     @foreach ($mahasiswa as $mhs)
-                    <tr>
-                        <td>{{ $mhs->nama }}</td>
-                        <td>{{ $mhs->npm }}</td>
-                        <td>{{ $mhs->judul }}</td>
-                        <td>
-                            <input type="text" class="form-control" name="dosen1[{{ $mhs->id }}]" placeholder="Nama Dosen 1" value="{{ $mhs->dosen1 }}">
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" name="dosen2[{{ $mhs->id }}]" placeholder="Nama Dosen 2" value="{{ $mhs->dosen2 }}">
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" name="catatan[{{ $mhs->id }}]" placeholder="Tambahkan catatan">
-                        </td>
-                        <td>
-                            <select class="form-select" name="status[{{ $mhs->id }}]">
-                                <option value="diterima" {{ $mhs->status == 'diterima' ? 'selected' : '' }}>Diterima</option>
-                                <option value="ditolak" {{ $mhs->status == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
-                            </select>
-                        </td>
-                        <td class="text-center">
-                        <button class="btn btn-success" data-id="{{ $mhs->id }}" class="btn-update"><i class="fas fa-save"></i> Update</button>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td>{{ $mhs->nama }}</td>
+                            <td>{{ $mhs->npm }}</td>
+                            <td>{{ $mhs->judul }}</td>
+                            <td>
+                                <input type="text" class="form-control" name="dosen1[{{ $mhs->id }}]"
+                                    placeholder="Nama Dosen 1" value="{{ $mhs->dospem_1 ?? '' }}">
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="dosen2[{{ $mhs->id }}]"
+                                    placeholder="Nama Dosen 2" value="{{ $mhs->dospem_2 ?? '' }}">
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="catatan[{{ $mhs->id }}]"
+                                    placeholder="Tambahkan catatan" value="{{ $mhs->catatan_dospem ?? '' }}">
+                            </td>
+                            <td>
+                                <select class="form-select" name="status[{{ $mhs->id }}]">
+                                    <option value="diterima" {{ $mhs->status == 'diterima' ? 'selected' : '' }}>Diterima</option>
+                                    <option value="ditolak" {{ $mhs->status == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-success btn-update" data-id="{{ $mhs->id }}">
+                                    <i class="fas fa-save"></i> Update
+                                </button>
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
@@ -78,53 +83,84 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- JavaScript function for update (placeholder, implement as needed) -->
     <script>
-    // Fungsi untuk menangani tombol update
-    document.querySelectorAll('.btn-update').forEach(button => {
-        button.addEventListener('click', function () {
-            const id = this.getAttribute('data-id');
-            const status = document.querySelector(`[name="status[${id}]"]`).value;
-            const dosen1 = document.querySelector(`[name="dosen1[${id}]"]`).value;
-            const dosen2 = document.querySelector(`[name="dosen2[${id}]"]`).value;
+        document.querySelectorAll('.btn-update').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                console.log('Tombol update diklik untuk ID:', id); // Log ID yang diklik
 
-            Swal.fire({
-                title: 'Konfirmasi Update',
-                text: "Apakah Anda yakin ingin mengupdate data ini?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Update!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Kirim data menggunakan fetch API
-                    fetch(`/kta/update/${id}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: JSON.stringify({ status, dosen1, dosen2 })
-                    })
+                // Ambil nilai dari input status, dosen1, dosen2, dan catatan
+                const status = document.querySelector(`[name="status[${id}]"]`).value;
+                const dosen1 = document.querySelector(`[name="dosen1[${id}]"]`).value;
+                const dosen2 = document.querySelector(`[name="dosen2[${id}]"]`).value;
+                const catatan_dospem = document.querySelector(`[name="catatan[${id}]"]`).value;
+
+                // Log nilai yang akan dikirim
+                console.log('Data yang akan dikirim:', { status, dosen1, dosen2, catatan_dospem });
+
+                // Periksa apakah semua data sudah terisi
+                if (!status || !dosen1 || !dosen2) {
+                    Swal.fire('Gagal!', 'Semua kolom harus diisi!', 'error');
+                    return; // Jangan kirim request jika ada data yang kosong
+                }
+
+                Swal.fire({
+                    title: 'Konfirmasi Update',
+                    text: "Apakah Anda yakin ingin mengupdate data ini?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Update!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        console.log('Mengirim data:', {
+                            status,
+                            dosen1,
+                            dosen2,
+                            catatan_dospem
+                        }); // Log data yang dikirim
+
+                        // Mengirim data ke server menggunakan fetch
+                        fetch(`/kta/update/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({
+                                status,
+                                dosen1,
+                                dosen2,
+                                catatan_dospem
+                            })
+                        })
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                Swal.fire('Sukses!', data.message, 'success').then(() => location.reload());
+                                Swal.fire('Sukses!', data.message, 'success').then(() => {
+                                    location.reload(); // Reload halaman setelah berhasil update
+                                });
                             } else {
                                 Swal.fire('Gagal!', data.message, 'error');
                             }
                         })
-                        .catch(error => Swal.fire('Error!', 'Terjadi kesalahan', 'error'));
-                }
+                        .catch(error => {
+                            Swal.fire('Error!', 'Terjadi kesalahan saat mengupdate data', 'error');
+                        });
+                    }
+                });
             });
         });
-    });
-</script>
+    </script>
+
+
 
 </body>
 
-        
+
 
 </html>
