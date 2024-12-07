@@ -9,10 +9,8 @@ class Mahasiswa extends Model
 {
     use HasFactory;
 
-    // Nama tabel jika tidak sesuai konvensi Laravel
     protected $table = 'mahasiswa';
 
-    // Kolom yang boleh diisi (mass assignment)
     protected $fillable = [
         'nama',
         'npm',
@@ -20,15 +18,11 @@ class Mahasiswa extends Model
         'file_path',
         'status',
         'kta_id',
-        'dospem_1', 
-        'dospem_2', 
+        'dospem_1',
+        'dospem_2',
         'catatan_dospem'
     ];
 
-    /**
-     * Relasi ke model KTA.
-     * Mahasiswa hanya bisa memiliki satu KTA terkait.
-     */
     public function kta()
     {
         return $this->belongsTo(KTA::class, 'kta_id');

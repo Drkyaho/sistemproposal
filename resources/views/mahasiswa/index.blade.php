@@ -21,22 +21,31 @@
             </div>
         </div>
 
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <!-- Form Pengajuan -->
         <form method="POST" action="/mahasiswa" enctype="multipart/form-data" class="shadow p-4 rounded bg-light">
             @csrf
             <div class="mb-3">
                 <label for="nama" class="form-label">Nama</label>
-                <input type="text" name="nama" id="nama" class="form-control" placeholder="Masukkan nama lengkap" required>
+                <input type="text" name="nama" id="nama" class="form-control"
+                    placeholder="Masukkan nama lengkap" required>
             </div>
 
             <div class="mb-3">
                 <label for="npm" class="form-label">NPM</label>
-                <input type="text" name="npm" id="npm" class="form-control" placeholder="Masukkan NPM" required>
+                <input type="text" name="npm" id="npm" class="form-control" placeholder="Masukkan NPM"
+                    required>
             </div>
 
             <div class="mb-3">
                 <label for="judul" class="form-label">Judul Proposal</label>
-                <input type="text" name="judul" id="judul" class="form-control" placeholder="Masukkan judul proposal" required>
+                <input type="text" name="judul" id="judul" class="form-control"
+                    placeholder="Masukkan judul proposal" required>
             </div>
 
             <div class="mb-3">
@@ -54,24 +63,26 @@
         <h2 class="text-primary"><i class="fas fa-list"></i> Daftar Pengajuan</h2>
         <div class="row mt-4">
             @foreach ($mahasiswa as $mhs)
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body">
-                        <h5 class="card-title text-primary">{{ $mhs->nama }}</h5>
-                        <p class="card-text"><strong>Judul:</strong> {{ $mhs->judul }}</p>
-                        <p><strong>Dosen Pembimbing 1:</strong> {{ $mhs->dospem_1 }}</p>
-                        <p><strong>Dosen Pembimbing 2:</strong> {{ $mhs->dospem_2 }}</p>
-                        <p><strong>Catatan:</strong> {{ $mhs->catatan_dospem }}</p>
-                        <p class="mb-1">
-                            <strong>Status:</strong> 
-                            <span class="badge bg-{{ $mhs->status == 'diterima' ? 'success' : ($mhs->status == 'ditolak' ? 'danger' : 'secondary') }}">
-                                {{ ucfirst($mhs->status ?? 'Pending') }}
-                            </span>
-                        </p>
-                        <p class="text-muted small mb-0"><i class="fas fa-calendar-alt"></i> Diajukan pada {{ $mhs->created_at->format('d M Y') }}</p>
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">{{ $mhs->nama }}</h5>
+                            <p class="card-text"><strong>Judul:</strong> {{ $mhs->judul }}</p>
+                            <p><strong>Dosen Pembimbing 1:</strong> {{ $mhs->dospem_1 }}</p>
+                            <p><strong>Dosen Pembimbing 2:</strong> {{ $mhs->dospem_2 }}</p>
+                            <p><strong>Catatan:</strong> {{ $mhs->catatan_dospem }}</p>
+                            <p class="mb-1">
+                                <strong>Status:</strong>
+                                <span
+                                    class="badge bg-{{ $mhs->status == 'diterima' ? 'success' : ($mhs->status == 'ditolak' ? 'danger' : 'secondary') }}">
+                                    {{ ucfirst($mhs->status ?? 'Pending') }}
+                                </span>
+                            </p>
+                            <p class="text-muted small mb-0"><i class="fas fa-calendar-alt"></i> Diajukan pada
+                                {{ $mhs->created_at->format('d M Y') }}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
             @endforeach
         </div>
     </div>
