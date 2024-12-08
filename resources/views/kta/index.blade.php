@@ -33,6 +33,7 @@
                         <th>Nama</th>
                         <th>NPM</th>
                         <th>Judul</th>
+                        <th>File</th>
                         <th>Dosen Pembimbing 1</th>
                         <th>Dosen Pembimbing 2</th>
                         <th>Catatan</th>
@@ -46,6 +47,18 @@
                             <td>{{ $mhs->nama }}</td>
                             <td>{{ $mhs->npm }}</td>
                             <td>{{ $mhs->judul }}</td>
+                            <td>
+                                @if ($mhs->file_path)
+                                    <a href="https://drive.google.com/viewerng/viewer?embedded=true&url={{ urlencode(asset('storage/' . $mhs->file_path)) }}" 
+                                    target="_blank" 
+                                    class="btn btn-link">
+                                        <i class="fas fa-file-pdf"></i> Lihat File
+                                    </a>
+                                @else
+                                    <span class="text-muted">Belum ada file</span>
+                                @endif
+                            </td>
+
                             <td>
                                 <input type="text" class="form-control" name="dosen1[{{ $mhs->id }}]"
                                     placeholder="Nama Dosen 1" value="{{ $mhs->dospem_1 ?? '' }}">
@@ -65,10 +78,15 @@
                                 </select>
                             </td>
                             <td class="text-center">
-                                <button class="btn btn-success btn-update" data-id="{{ $mhs->id }}">
+                                <button class="btn btn-success btn-update mt-3 w-100" data-id="{{ $mhs->id }}">
                                     <i class="fas fa-save"></i> Update
                                 </button>
+                                <!-- Tombol delete -->
+                                <button class="btn btn-danger btn-delete mt-3 w-100" data-id="{{ $mhs->id }}">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
                             </td>
+
                         </tr>
                     @endforeach
                 </tbody>
@@ -155,6 +173,50 @@
                 });
             });
         });
+
+            // Function for handling the delete button click
+        document.querySelectorAll('.btn-delete').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                console.log('Tombol delete diklik untuk ID:', id); // Log ID yang diklik
+
+                // Konfirmasi sebelum menghapus
+                Swal.fire({
+                    title: 'Konfirmasi Hapus',
+                    text: "Apakah Anda yakin ingin menghapus data ini?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Hapus!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Mengirim request DELETE
+                        fetch(`/kta/delete/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('Sukses!', data.message, 'success').then(() => {
+                                    location.reload(); // Reload halaman setelah berhasil menghapus
+                                });
+                            } else {
+                                Swal.fire('Gagal!', data.message, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire('Error!', 'Terjadi kesalahan saat menghapus data', 'error');
+                        });
+                    }
+                });
+            });
+        });
+
     </script>
 
 

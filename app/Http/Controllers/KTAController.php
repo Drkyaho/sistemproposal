@@ -73,4 +73,36 @@ class KTAController extends Controller
         $pdf = Pdf::loadView('pdf.mahasiswa', compact('mahasiswa'));
         return $pdf->download('pengajuan-proposal.pdf');
     }
+
+    // ini fungsi delete
+    public function delete($id)
+{
+    try {
+        // Mencari data mahasiswa berdasarkan ID
+        $mahasiswa = Mahasiswa::findOrFail($id);
+
+        // Menghapus data mahasiswa
+        $mahasiswa->delete();
+
+        // Log sukses
+        Log::info('Delete successful for ID:', ['id' => $id]);
+
+        // Mengembalikan respon JSON sukses
+        return response()->json(['success' => true, 'message' => 'Data berhasil dihapus.']);
+    } catch (\Exception $e) {
+        // Log error detail
+        Log::error('Delete failed:', [
+            'id' => $id,
+            'error' => $e->getMessage(),
+            'stack' => $e->getTraceAsString(),
+        ]);
+
+        // Mengembalikan respon JSON error dengan pesan yang lebih detail
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal menghapus data: ' . $e->getMessage(),
+        ]);
+    }
+}
+
 }
